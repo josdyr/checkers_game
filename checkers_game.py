@@ -2,6 +2,14 @@
 board = [[None] * 8] * 8
 
 
+# Class: Piece
+class Piece():
+    # position = (letter, number)
+
+    def __init__(self, color, position):
+        pass
+
+
 # Class: Move
 class Move():
     def __init__(self, row, col, player):
@@ -21,6 +29,10 @@ class Player:
 
 
 def move(move_obj):
+    pass
+
+
+def map_pieces():
     pass
 
 
