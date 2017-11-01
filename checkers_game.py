@@ -1,17 +1,31 @@
-# Class: 2D list that holds the board
-board = [[None] * 8] * 8
+white_initial_positions = [
+    "A1", "A3", "B2", "C1", "C3", "D2", "E1", "E3", "F2", "G1", "G3", "H2"
+]
+black_initial_positions = [
+    "A7", "B6", "B8", "C7", "D6", "D8", "E7", "F6", "F8", "G7", "H6", "H8"
+]
+
+
+letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
+numbers = ["1", "2", "3", "4", "5", "6", "7", "8"]
+
+
+class Point:
+    row = ""
+    col = ""
 
 
 # Class: Piece
-class Piece():
-    # position = (letter, number)
+class Piece:
+    position = ""
 
     def __init__(self, color, position):
-        pass
+        self.color = color
+        self.position = position
 
 
 # Class: Move
-class Move():
+class Move:
     def __init__(self, row, col, player):
         self.row = row
         self.col = col
@@ -28,19 +42,25 @@ class Player:
         self.pieces = pieces
 
 
-def move(move_obj):
-    pass
-
-
-def map_pieces():
-    pass
-
-
 def draw_board():
+    i = 8
     for row in board:
+        print("{} ".format(i, end=''))
+        i = i - 1
         for col in row:
             if col is None:
                 print('[ ]', end='')
             else:
                 print(col, end='')
         print('')
+    print(' ', end="")
+    alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+    for l in alphabet:
+        print("  {}".format(l), end="")
+    print()
+
+
+def draw_board():
+    for row in board:
+        for col in row:
+            print(col, end="")
