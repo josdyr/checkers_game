@@ -6,17 +6,17 @@ black_initial_positions = [
 ]
 
 
+board = [[None] * 8] * 8
 letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
 numbers = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 
-class Point:
+class Point(object):
     row = ""
     col = ""
 
 
-# Class: Piece
-class Piece:
+class Piece(object):
     position = ""
 
     def __init__(self, color, position):
@@ -24,16 +24,14 @@ class Piece:
         self.position = position
 
 
-# Class: Move
-class Move:
+class Move(object):
     def __init__(self, row, col, player):
         self.row = row
         self.col = col
         self.player = player
 
 
-# Class: Player
-class Player:
+class Player(object):
     color = 'white'
     pieces = 12
 
@@ -45,7 +43,7 @@ class Player:
 def draw_board():
     i = 8
     for row in board:
-        print("{} ".format(i, end=''))
+        print("{} ".format(i), end='')
         i = i - 1
         for col in row:
             if col is None:
@@ -58,9 +56,3 @@ def draw_board():
     for l in alphabet:
         print("  {}".format(l), end="")
     print()
-
-
-def draw_board():
-    for row in board:
-        for col in row:
-            print(col, end="")
