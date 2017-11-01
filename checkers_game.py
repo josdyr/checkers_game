@@ -11,13 +11,28 @@ letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
 numbers = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
 
+class Slot(object):
+    pass
+
+
+# Creates a coordinate. Methods: move
 class Point(object):
-    row = ""
-    col = ""
+
+    def __init__(self, row, col):
+        self.row = row
+        self.col = col
+
+    def move(self, d_row, d_col):
+        self.row = self.row + d_row
+        self.col = self.col + d_col
+
+    def __str__(self):
+        return "Point: {}, {}".format(self.row, self.col)
 
 
 class Piece(object):
     position = ""
+    location = Point()
 
     def __init__(self, color, position):
         self.color = color
