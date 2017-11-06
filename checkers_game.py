@@ -170,11 +170,11 @@ def move(player, piece, to):
 board = make_board()
 draw_board()
 
-# pdb.set_trace()
-#
-# # testing moves:
-# move('W', 'C6', 'B5')
-#
-# move('B', 'D3', 'E4')
-#
-# move('W','E6','F5')
+pdb.set_trace()
+
+# testing moves:
+move('W', 'C6', 'B5')
+
+move('B', 'D3', 'E4')
+
+move('W', 'E6', 'F5')
