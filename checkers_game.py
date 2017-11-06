@@ -1,4 +1,8 @@
+import numpy
+import os
+import pdb
 import string
+
 
 ###########
 # CLASSES #
@@ -61,11 +65,15 @@ def give_location(board):
 
     for row_idx, row in enumerate(board):
         for slot_idx, slot in enumerate(row):
+
             # give locations to each slot
             current_location = ""
             current_location += str(letters[slot_idx])
             current_location += str(numbers[row_idx])
             slot.location = current_location
+
+            # give coordinates to each slot
+            slot.coordinates = (row_idx, slot_idx)
 
 
 def place_pieces(board):
@@ -84,27 +92,28 @@ def place_pieces(board):
 
 
 def draw_board():
+    # os.system('clear')
     for row_idx, row in enumerate(board):
         print("{} ".format(row_idx + 1), end='')  # Print the margin numbers
 
         # Print '[ ]' OR print the content:
         for slot_idx, slot in enumerate(row):
             if slot.piece:  # if Piece in Slot
-                print('[{}   ]'.format(board[row_idx][slot_idx].piece.player), end="")
+                print('[{}]'.format(board[row_idx][slot_idx].piece.player), end="")
             else:
-                # print('[{}]'.format(board[row_idx][slot_idx].location), end='')
-                print("[{}]".format(str(row_idx) + ", " + str(slot_idx)), end="")
+                print("[ ]", end="")
         print("")
     print(" ", end="")
 
     # Print the characters
     letters = string.ascii_uppercase[:8]
     for l in letters:
-        print("   {}  ".format(l), end="")
+        print("  {}".format(l), end="")
     print()
 
 
-def move(piece, to):
+def move(player, piece, to):
+
     abc_map = {
         'A': 0,
         'B': 1,
@@ -118,14 +127,38 @@ def move(piece, to):
 
     from_x = int(piece[1]) - 1  # from_x
     from_y = abc_map[piece[0]]  # from_y
-    print("x: {}, y: {}".format(from_x, from_y))
+    print("from: ({}, {})".format(from_x, from_y))
 
     to_x = int(to[1]) - 1
     to_y = abc_map[to[0]]
-    print("x: {}, y: {}".format(to_x, to_y))
+    print("to: ({}, {})".format(to_x, to_y))
 
-    board[from_x][from_y].piece = None  # set piece to None
-    board[to_x][to_y].piece = Piece('C')  # make a new Piece
+    # check if slot has a piece
+    if board[from_x][from_y].piece is not None:
+        print("current slot has a piece")
+        player = board[from_x][from_y].piece.player
+        coor_from = board[from_x][from_y].coordinates
+        coor_to = board[to_x][to_y].coordinates
+
+        if player == "W":
+            # if 'to-coordinates' is same as ('piece-coordinates' plus the difference)
+            if coor_from == tuple(numpy.subtract(coor_to, (-1, 1))) or coor_from == tuple(numpy.subtract(coor_to, (-1, -1))):
+                print("This is a valid move diagonally for White!")
+                board[from_x][from_y].piece = None  # set piece to None
+                board[to_x][to_y].piece = Piece(player)  # make a new Piece
+            else:
+                print("This is not a valid diagonal move. Try again...")
+
+        elif player == "B":
+            # if 'to-coordinates' is same as ('piece-coordinates' plus the difference)
+            if coor_from == tuple(numpy.subtract(coor_to, (1, 1))) or coor_from == tuple(numpy.subtract(coor_to, (1, -1))):
+                print("This is a valid move diagonally for Black!")
+                board[from_x][from_y].piece = None  # set piece to None
+                board[to_x][to_y].piece = Piece(player)  # make a new Piece
+            else:
+                print("This is not a valid diagonal move. Try again...")
+    else:
+        print("Error: Current slot has no piece")
 
     draw_board()
 
@@ -135,3 +168,13 @@ def move(piece, to):
 
 
 board = make_board()
+draw_board()
+
+# pdb.set_trace()
+#
+# # testing moves:
+# move('W', 'C6', 'B5')
+#
+# move('B', 'D3', 'E4')
+#
+# move('W','E6','F5')
