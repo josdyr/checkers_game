@@ -131,9 +131,6 @@ def map_coordinates(arg):
 
 
 def move(from_space, to_space):
-
-    # pdb.set_trace()
-
     coor_from = map_coordinates(from_space)
     print(coor_from)
     coor_to = map_coordinates(to_space)
@@ -183,6 +180,7 @@ def get_valid_moves(coor_from, displacements):
                    for coor in displacements]
     valid_moves = [coor for coor in valid_moves if coor[0]
                    >= 0 and coor[0] < 8 and coor[1] >= 0 and coor[1] < 8]
+    pdb.set_trace()
     return valid_moves
 
 
@@ -195,7 +193,6 @@ def game_loop():
 
 
 def check_king(coor_to):
-    pdb.set_trace()
     if coor_to[0] == 0 or coor_to[0] == 7:
         return True
     else:
