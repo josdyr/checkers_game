@@ -40,14 +40,14 @@ def make_board():
     board = [[Space() for j in range(8)] for i in range(8)]
 
     # give coordinates:
-    give_location(board)
+    set_coordinates(board)
     # initiate pieces:
     place_pieces(board)
 
     return board
 
 
-def give_location(board):
+def set_coordinates(board):
 
     for row_idx, row in enumerate(board):
         for space_idx, space in enumerate(row):
@@ -201,18 +201,18 @@ def check_king(coor_to):
     else:
         return False
 
-    ###########
-    # PROGRAM #
-    ###########
+###########
+# PROGRAM #
+###########
 
 
 board = make_board()
 
-move('B6', 'C5')
-move('C5', 'B4')
-move('B4', 'C3')
-move('C3', 'B2')
-move('B2', 'C1')
+# move('B6', 'C5')
+# move('C5', 'B4')
+# move('B4', 'C3')
+# move('C3', 'B2')
+# move('B2', 'C1')
 
 draw_board()
 
