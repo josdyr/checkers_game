@@ -28,7 +28,7 @@ class Point(object):
 class Space(object):
     piece = None
     point = Point(None, None)
-    coordinates = (None, None)
+    # coordinates = (None, None)
 
 
 class Piece(object):
@@ -55,7 +55,7 @@ def make_board():
     board = [[Space() for j in range(8)] for i in range(8)]
 
     # give coordinates:
-    set_coordinates(board)
+    # set_coordinates(board)
 
     # give points/new coordinates
     set_points(board)
@@ -65,13 +65,13 @@ def make_board():
     return board
 
 
-def set_coordinates(board):
-
-    for row_idx, row in enumerate(board):
-        for space_idx, space in enumerate(row):
-
-            # give coordinates to each space
-            space.coordinates = (row_idx, space_idx)
+# def set_coordinates(board):
+#
+#     for row_idx, row in enumerate(board):
+#         for space_idx, space in enumerate(row):
+#
+#             # give coordinates to each space
+#             space.coordinates = (row_idx, space_idx)
 
 
 def set_points(board):
@@ -84,22 +84,21 @@ def set_points(board):
 
 def place_pieces(board):
 
-    # white_initial_positions = [
-    #     (0, 0), (2, 0), (1, 1), (0, 2), (4, 2), (1, 3), (0, 4), (2, 4), (1, 5), (0, 6), (2, 6), (1, 7)
-    # ]
     white_initial_positions = [
-        (4, 2)
+        Point(0, 0), Point(2, 0), Point(1, 1), Point(0, 2), Point(2, 2), Point(1, 3), Point(
+            0, 4), Point(2, 4), Point(1, 5), Point(0, 6), Point(2, 6), Point(1, 7)
     ]
     black_initial_positions = [
-        (6, 0), (5, 1), (7, 1), (6, 2), (5, 3), (7, 3), (6, 4), (5, 5), (7, 5), (6, 6), (5, 7), (7, 7)
+        Point(6, 0), Point(5, 1), Point(7, 1), Point(6, 2), Point(5, 3), Point(7, 3), Point(
+            6, 4), Point(5, 5), Point(7, 5), Point(6, 6), Point(5, 7), Point(7, 7)
     ]
 
     # if location in lists is the same as the space in board:
     for row_idx, row in enumerate(board):
         for space_idx, space in enumerate(row):
-            if board[row_idx][space_idx].coordinates in white_initial_positions:
+            if board[row_idx][space_idx].point in white_initial_positions:
                 board[row_idx][space_idx].piece = Piece('White')
-            elif board[row_idx][space_idx].coordinates in black_initial_positions:
+            elif board[row_idx][space_idx].point in black_initial_positions:
                 board[row_idx][space_idx].piece = Piece('Black')
     return board
 
@@ -156,34 +155,36 @@ def map_coordinates(arg):
     x = int(arg[1]) - 1
     y = abc_map[arg[0]]
 
-    # return (x, y)
     return Point(x, y)
 
 
 def move(from_space, to_space):
-    coor_from = map_coordinates(from_space)
-    print("coor_from", coor_from)
-    coor_to = map_coordinates(to_space)
-    print("coor_to", coor_to)
+    point_from = map_coordinates(from_space)
+    point_to = map_coordinates(to_space)
+    print("point_from: {}".format(point_from))
+    print("point_to: {}".format(point_to))
 
-    piece = get_board_piece(coor_from)
+    piece = get_board_piece(point_from)
 
-    # check if space has a from_space
-    if piece is not None:
+    if piece:
         player = piece.player
         current_type = piece._type
 
         check_spaces_list = get_checklist(current_type, player)
 
-        valid_move = is_valid_move(coor_from, coor_to, check_spaces_list, player)
+        valid_moves = set_valid_moves(piece, point_from, point_to, check_spaces_list)
 
-        # pdb.set_trace()
+        # print("valid_moves: ", end='')
+        # [print("({})".format(valid_move), end='') for valid_move in valid_moves]
+        # print()
+
+        valid_move = is_valid_move(piece, point_to, valid_moves)
 
         if valid_move:
-            do_move(coor_from, coor_to, piece)
+            do_move(point_from, point_to, piece)
 
-            if check_king(coor_to) is True:
-                board[coor_to.x][coor_to.y].piece._type = "King"
+            if check_king(point_to) is True:
+                board[point_to.x][point_to.y].piece._type = "King"
         else:
             print('Invalid move.')
 
@@ -193,9 +194,9 @@ def move(from_space, to_space):
     draw_board()
 
 
-def do_move(coor_from, coor_to, piece):
-    set_board_piece(coor_to, piece)
-    set_board_piece(coor_from, None)
+def do_move(point_from, point_to, piece):
+    set_board_piece(point_to, piece)
+    set_board_piece(point_from, None)
 
 
 def get_checklist(current_type, player):
@@ -212,26 +213,34 @@ def get_checklist(current_type, player):
     return check_spaces_list
 
 
-def is_valid_move(coor_from, coor_to, check_spaces_list, player):
+def set_valid_moves(piece, point_from, point_to, check_spaces_list):
 
-    # coor_to must have a piece in board
-    if board[coor_to.x][coor_to.y].piece:
+    piece.valid_moves = [Point(point_from.x + p.x, point_from.y + p.y)
+                         for p in check_spaces_list]
+
+    piece.valid_moves = [p for p in piece.valid_moves if p.x
+                         >= 0 and p.x < 8 and p.y >= 0 and p.y < 8]
+
+    # if move is two_disp
+    if point_to == point_from.add(Point(-2, -2)) or point_to == point_from.add(Point(-2, 2)):
+        if board[point_to.x][point_to.y].piece is None:  # if current space has no piece
+            board[point_to.x + 1][point_to.y + 1].piece = None  # remove the piece in between
+            # add point to piece.valid_moves
+            piece.valid_moves = point_to
+    elif point_to == point_from.add(Point(-1, -1)) or point_to == point_from.add(Point(-1, 1)):
+        pass
+
+    return piece.valid_moves
+
+
+def is_valid_move(piece, point_to, valid_moves):
+
+    # point_to must have a piece in board
+    if board[point_to.x][point_to.y].piece:
         print("This space has a piece. Try again")
         return False
 
-    valid_moves = [Point(coor_from.x + point.x, coor_from.y + point.y)
-                   for point in check_spaces_list]
-
-    valid_moves = [point for point in valid_moves if point.x
-                   >= 0 and point.x < 8 and point.y >= 0 and point.y < 8]
-
-    if coor_to not in valid_moves:
-        return False
-
-    if coor_to == coor_from.add(Point(-2, -2)) or coor_to == coor_from.add(Point(-2, 2)):  # if move is two_disp
-        if board[coor_to.x][coor_to.y].piece is None:  # if current space has no piece
-            board[coor_to.x + 1][coor_to.y + 1].piece = None  # remove the piece in between
-            return True
+    # pdb.set_trace()
 
     return True
 
@@ -244,8 +253,8 @@ def game_loop():
         move(from_space, to_space)
 
 
-def check_king(coor_to):
-    if coor_to.x == 0 or coor_to.x == 7:
+def check_king(point_to):
+    if point_to.x == 0 or point_to.x == 7:
         return True
     else:
         return False
