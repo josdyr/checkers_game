@@ -2,17 +2,22 @@ from enum import Enum
 import pdb
 
 
-class PlayerType(Enum):
+BOARD_SIZE = 8
+NUM_PIECES = 12
+
+
+class PlayerKind(Enum):
     HUMAN = 1
     COMPUTER = 2
 
 
 class Player(object):
 
-    piece_list = []
+    owner = None
 
-    def __init__(self, player_type):
-        self.player_type = player_type
+    def __init__(self, kind, piece_list):
+        self.kind = kind
+        self.piece_list = piece_list
 
     def has_pieces(self):
         if len(self.piece_list) >= 1:
@@ -25,11 +30,13 @@ class Game(object):
 
     turn_list = []
 
-    def __init__(self, player1_type, player2_type):
+    def __init__(self, player1_kind, player2_kind):
         self.turn_count = 0
-        self.player1 = Player(player1_type)
-        self.player2 = Player(player2_type)
+        self.player1 = Player(player1_kind, PLAYER1_PIECES)
+        self.player2 = Player(player2_kind, PLAYER2_PIECES)
         self.board = Board(self.player1, self.player2)
+        self.board.populate_board(self.player1)
+        self.board.populate_board(self.player2)
         self.start()
 
     def start(self):
@@ -42,7 +49,7 @@ class Game(object):
 
     def next_turn(self):
         print("Turn: {}".format(self.turn_count))
-        self.turn_list[self.turn_count] = Turn(self._active_player)
+        self.turn_list.append(Turn(self._active_player))
 
         # Switch player
         if self._active_player is self.player1:
@@ -54,13 +61,14 @@ class Game(object):
 
 
 class Turn(object):
+
     piece = None
     destination = None
 
     def __init__(self, player):
         self.player = player
 
-        if player.player_type is PlayerType.HUMAN:
+        if player.kind is PlayerKind.HUMAN:
             self.prompt_move()
         else:
             self.calculate_move()
@@ -68,9 +76,10 @@ class Turn(object):
 
     def prompt_move(self):
         while self.piece is None:
+            pdb.set_trace()
             piece_from_point = map_coordinates(input("Move from: "))
             for p in self.player.piece_list:
-                if p.position == piece_from_point:
+                if p.point == piece_from_point:
                     self.piece = p
                     break
             if self.piece is None:
@@ -87,21 +96,27 @@ class Turn(object):
         pass
 
 
+class Move(object):
+
+    def __init__(self):
+        self.piece = None
+        self.destination = None
+
+
 class Piece(object):
     valid_moves = []
+    mandatory_moves = []
 
-    def __init__(self, position, owner):
-        self.position = position
-        self.owner = owner
+    def __init__(self, point):
+        self.point = point
 
     def __str__(self):
-        return "Position: {}".format(str(self.position))
+        return "Position: {}".format(str(self.point))
 
     def move(self, destination):
-        self.position = destination
+        self.point = destination
 
     def is_move_valid(self, destination):
-
         return True
 
 
@@ -123,21 +138,38 @@ class Point(object):
 
 class Board(object):
 
+    board = [[None] * BOARD_SIZE] * BOARD_SIZE
+
     def __init__(self, player1, player2):
-        self.player1_positions = [
-            Piece(Point(0, 0), player1), Piece(Point(2, 0), player1), Piece(Point(1, 1), player1), Piece(Point(0, 2), player1), Piece(Point(2, 2), player1), Piece(Point(1, 3), player1), Piece(
-                Point(0, 4), player1), Piece(Point(2, 4), player1), Piece(Point(1, 5), player1), Piece(Point(0, 6), player1), Piece(Point(2, 6), player1), Piece(Point(1, 7), player1)
-        ]
-        self.player2_positions = [
-            Piece(Point(6, 0), player2), Piece(Point(5, 1), player2), Piece(Point(7, 1), player2), Piece(Point(6, 2), player2), Piece(Point(5, 3), player2), Piece(Point(7, 3), player2), Piece(
-                Point(6, 4), player2), Piece(Point(5, 5), player2), Piece(Point(7, 5), player2), Piece(Point(6, 6), player2), Piece(Point(5, 7), player2), Piece(Point(7, 7), player2)
-        ]
+        pass
+
+    def populate_board(self, player1):
+        """place all pieces to the board"""
+        for piece in player1.piece_list:
+            for i, row in enumerate(self.board):
+                for j, col in enumerate(row):
+                    if i == piece.point.x and j == piece.point.y:
+                        self.board[i][j] = piece
+        pass
 
     def has_pieces():
         pass
 
-    def draw():
-        pass
+    def draw(self, board):
+        for space in board:
+            if space.piece is None:
+                print("[ ]")
+            else:
+                print("[P]")
+
+
+PLAYER1_PIECES = [
+    Piece(Point(0, 0)), Piece(Point(2, 0)), Piece(Point(1, 1)), Piece(Point(0, 2)), Piece(Point(2, 2)), Piece(Point(1, 3)), Piece(
+        Point(0, 4)), Piece(Point(2, 4)), Piece(Point(1, 5)), Piece(Point(0, 6)), Piece(Point(2, 6)), Piece(Point(1, 7))]
+
+PLAYER2_PIECES = [
+    Piece(Point(6, 0)), Piece(Point(5, 1)), Piece(Point(7, 1)), Piece(Point(6, 2)), Piece(Point(5, 3)), Piece(Point(7, 3)), Piece(
+        Point(6, 4)), Piece(Point(5, 5)), Piece(Point(7, 5)), Piece(Point(6, 6)), Piece(Point(5, 7)), Piece(Point(7, 7))]
 
 
 def map_coordinates(arg):
@@ -161,8 +193,9 @@ def map_coordinates(arg):
 
 def main():
     # TODO Promt user for player types
-    game = Game(PlayerType.HUMAN, PlayerType.COMPUTER)
+    game = Game(PlayerKind.HUMAN, PlayerKind.HUMAN)
     pdb.set_trace()
+    pass
 
 
 if __name__ == "__main__":
