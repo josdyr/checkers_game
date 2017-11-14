@@ -24,17 +24,25 @@ class Player(object):
 
     owner = None
     color = None
+    piece_list = []
 
-    def __init__(self, kind, color, piece_list):
+    def __init__(self, kind, color, initial_points):
         self.kind = kind
         self.color = color
-        self.piece_list = piece_list
+        self.populate_piece_list(initial_points)
 
     def has_pieces(self):
         if len(self.piece_list) >= 1:
             return True
         else:
             return False
+
+    def add_piece(self, piece):
+        self.piece_list.append(piece)
+
+    def populate_piece_list(self, point_list):
+        for point in point_list:
+            self.add_piece(Piece(point, self))
 
 
 class Game(object):
@@ -43,8 +51,8 @@ class Game(object):
 
     def __init__(self, player1_kind, player2_kind):
         self.turn_count = 0
-        self.player1 = Player(player1_kind, PlayerColor.WHITE, PLAYER1_PIECES)
-        self.player2 = Player(player2_kind, PlayerColor.BLACK, PLAYER2_PIECES)
+        self.player1 = Player(player1_kind, PlayerColor.WHITE, PLAYER1_POINTS)
+        self.player2 = Player(player2_kind, PlayerColor.BLACK, PLAYER2_POINTS)
         self.board = Board(self.player1, self.player2)
 
     def start(self):
@@ -60,7 +68,10 @@ class Game(object):
 
     def next_turn(self):
         print("Turn: {}".format(self.turn_count))
-        self.turn_list.append(Turn(self._active_player))
+        current_turn = Turn(self._active_player)
+        # DOMOVE:
+        self.board.move_piece(current_turn.piece, current_turn.destination)
+        self.turn_list.append(current_turn)
 
         # Switch player
         if self._active_player is self.player1:
@@ -69,6 +80,9 @@ class Game(object):
             self._active_player = self.player1
         # And increment the turn_count
         self.turn_count += 1
+
+    # def get_square(self, point):
+    #     return self.board[point.x][point.y]
 
 
 class Turn(object):
@@ -84,48 +98,49 @@ class Turn(object):
         elif player.kind is PlayerKind.COMPUTER:
             self.calculate_move()
 
-        self.piece.move(self.destination)
-
     def prompt_move(self):
         # Check if piece exists at location
         while self.piece is None:
-            piece_from_point = map_coordinates(input("Move from: "))
+            source_point = map_to_point(input("Move from: "))
             for p in self.player.piece_list:
-                if p.point == piece_from_point:
+                if p.current_square.point == source_point:
                     self.piece = p
                     break
             if self.piece is None:
-                print("No piece belonging to you at location: {}".format(str(piece_from_point)))
+                print("No piece belonging to you at location: {}".format(str(source_point)))
         # Check if destination is a valid Move
         while self.destination is None:
-            piece_to_point = map_coordinates(input("Move to: "))
-            if self.piece.is_move_valid(piece_to_point):
-                self.destination = piece_to_point
+            destination_point = map_to_point(input("Move to: "))
+            if self.piece.is_move_valid(destination_point):
+
+                self.destination = destination_point
             else:
                 print("Move to {} with piece at {} is invalid.".format(
-                    piece_to_point, self.piece.location))
+                    destination_point, self.piece.location))
 
     def calculate_move(self):
         pass
 
 
 class Piece(object):
+
     valid_moves = []
     mandatory_moves = []
+    current_square = None
 
-    def __init__(self, point):
-        self.point = point
+    def __init__(self, point, owner):
+        # self.set_point(point)
+        self.owner = owner
+        # self.set_current_square(point)
 
     def __str__(self):
         return "Position: {}".format(str(self.point))
 
-    # def move(self, destination):
-    #     # self.point = destination
-    #
-    #     pdb.set_trace()
-
     def is_move_valid(self, destination):
         return True
+
+    # def set_point(self, destination):
+    #     self.point = destination
 
 
 class Point(object):
@@ -147,51 +162,57 @@ class Point(object):
 class Square(object):
 
     piece = None
-    player = None
+    point = None
 
-    def populate(self, piece, player):
+    def __init__(self, point):
+        self.point = point
+
+    def set_piece(self, piece, point):
         self.piece = piece
-        self.player = player
+        self.piece.current_square = self
+        # self.point = point
+        # self.piece.set_point(self.point)
 
     def clear(self):
         self.piece = None
-        self.player = None
 
-    def draw(self):
+    def draw_item(self):
         if self.piece is None:
             print("[ ]", end='')
         else:
-            print("[{}]".format(str(self.player.color)), end='')
+            print("[{}]".format(str(self.piece.owner.color)), end='')
 
 
 class Board(object):
 
-    board = [[Square() for i in range(BOARD_SIZE)] for y in range(BOARD_SIZE)]
+    board = [[Square(Point(x, y)) for y in range(BOARD_SIZE)] for x in range(BOARD_SIZE)]
 
     def __init__(self, player1, player2):
         self.player1 = player1
         self.player2 = player2
         self.populate_board()
 
-    def move(self, from, to):
-        # self.point = destination
-        pass
+    def move_piece(self, piece, to):
         pdb.set_trace()
+        # self.board[to.x][to.y].piece = piece
+        # self.board[piece.point.x][piece.point.y].piece = None
+        self.board[to.x][to.y].set_piece(piece)
+        piece.current_square = self.board[to.x][to.y]
 
     def populate_board(self):
         """place all pieces to the board"""
         # self.clear()
-        self.populate_player_squares(self.player1)
-        self.populate_player_squares(self.player2)
+        self.populate_player_pieces(self.player1)
+        self.populate_player_pieces(self.player2)
 
     def clear(self):
         for row in range(0, BOARD_SIZE):
             for col in range(0, BOARD_SIZE):
                 self.board[row][col].clear()
 
-    def populate_player_squares(self, player):
+    def populate_player_pieces(self, player):
         for piece in player.piece_list:
-            self.board[piece.point.x][piece.point.y].populate(piece, player)
+            self.board[piece.point.x][piece.point.y].set_piece(piece)
 
     def draw_board(self):
         for row in range(0, BOARD_SIZE):
@@ -199,7 +220,7 @@ class Board(object):
             print("{} ".format(row), end='')
             print("{} ".format(row + 1), end='')
             for col in range(0, BOARD_SIZE):
-                self.board[row][col].draw()
+                self.board[row][col].draw_item()
         print()
         print("   ", end='')
         letters = string.ascii_uppercase[:8]
@@ -212,16 +233,16 @@ class Board(object):
         print()
 
 
-PLAYER1_PIECES = [
-    Piece(Point(0, 0)), Piece(Point(2, 0)), Piece(Point(1, 1)), Piece(Point(0, 2)), Piece(Point(2, 2)), Piece(Point(1, 3)), Piece(
-        Point(0, 4)), Piece(Point(2, 4)), Piece(Point(1, 5)), Piece(Point(0, 6)), Piece(Point(2, 6)), Piece(Point(1, 7))]
+PLAYER1_POINTS = [
+    Point(0, 0), Point(2, 0), Point(1, 1), Point(0, 2), Point(2, 2), Point(1, 3),
+    Point(0, 4), Point(2, 4), Point(1, 5), Point(0, 6), Point(2, 6), Point(1, 7)]
 
-PLAYER2_PIECES = [
-    Piece(Point(6, 0)), Piece(Point(5, 1)), Piece(Point(7, 1)), Piece(Point(6, 2)), Piece(Point(5, 3)), Piece(Point(7, 3)), Piece(
-        Point(6, 4)), Piece(Point(5, 5)), Piece(Point(7, 5)), Piece(Point(6, 6)), Piece(Point(5, 7)), Piece(Point(7, 7))]
+PLAYER2_POINTS = [
+    Point(6, 0), Point(5, 1), Point(7, 1), Point(6, 2), Point(5, 3), Point(7, 3),
+    Point(6, 4), Point(5, 5), Point(7, 5), Point(6, 6), Point(5, 7), Point(7, 7)]
 
 
-def map_coordinates(arg):
+def map_to_point(arg):
 
     abc_map = {
         'A': 0,
