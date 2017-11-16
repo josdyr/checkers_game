@@ -18,8 +18,36 @@ class Board(object):
     def move_piece(self, turn):
         piece = turn.current_piece
         destination = turn.destination_square
+        if abs(piece.current_square.y - destination[1]) == 2:
+            self.remove_piece_if_jump(piece, destination)
+
         piece.current_square.clear()
         self.board[destination[0]][destination[1]].set_piece(piece)
+
+    def remove_piece_if_jump(self, piece, destination):
+        x = piece.current_square.x
+        y = piece.current_square.y
+
+        if piece.player_owner.color == Player.PlayerColor.WHITE:
+            direction_x = (1)
+        else:
+            direction_x = (-1)
+
+        jump_right = (
+            destination[0] == self.board[x + (direction_x * 2)][y + 2].x
+            and destination[1] == self.board[x + (direction_x * 2)][y + 2].y
+        )
+
+        jump_left = (
+            destination[0] == self.board[x + (direction_x * 2)][y - 2].x
+            and destination[1] == self.board[x + (direction_x * 2)][y - 2].y
+        )
+
+        if jump_right:
+            self.board[x + direction_x][y + 1].piece.current_square.clear()
+
+        if jump_left:
+            self.board[x + direction_x][y - 1].piece.current_square.clear()
 
     def populate_board(self):
         """place all pieces to the board"""
@@ -61,18 +89,73 @@ class Board(object):
         x = piece.current_square.x
         y = piece.current_square.y
 
-        direction = -1
         if piece.player_owner.color == Player.PlayerColor.WHITE:
-            direction = 1
-
-        possibility_left = [x + direction, y - 1]
-        possibility_right = [x + direction, y + 1]
-
-        if destination == possibility_left or destination == possibility_right:
-            return True
+            direction_x = (1)
         else:
+            direction_x = (-1)
+
+        is_mandatory_move_right = (
+            x + direction_x * 2 >= 0 and x + direction_x * 2 <= 7
+            and y + 2 <= 7
+            and self.board[x + direction_x][y + 1].piece is not None
+            and self.board[x + direction_x][y + 1].piece.player_owner is not piece.player_owner
+            and self.board[x + (direction_x * 2)][y + 2].piece is None
+        )
+
+        is_mandatory_move_left = (
+            x + direction_x * 2 >= 0 and x + direction_x * 2 <= 7
+            and y - 2 >= 0
+            and self.board[x + direction_x][y - 1].piece is not None
+            and self.board[x + direction_x][y - 1].piece.player_owner is not piece.player_owner
+            and self.board[x + (direction_x * 2)][y - 2].piece is None
+        )
+
+        jump_right = (
+            destination[0] == x + (direction_x * 2)
+            and destination[1] == y + 2
+        )
+
+        jump_left = (
+            destination[0] == x + (direction_x * 2)
+            and destination[1] == y - 2
+        )
+
+        import pdb
+        pdb.set_trace()
+
+        if is_mandatory_move_left or is_mandatory_move_right:
+            if is_mandatory_move_left and jump_left:
+                return True
+            if is_mandatory_move_right and jump_right:
+                return True
             return False
 
-    def set_valid_moves(self, piece):
-        """set all possible moves to piece's valid_moves list"""
-        for moves in piece.valid_moves
+        possibility_right = (
+            x + direction_x >= 0 and x + direction_x <= 7
+            and y + 1 <= 7
+            and self.board[x + (direction_x * 1)][y + 1].piece is None
+        )
+        possibility_left = (
+            x + direction_x >= 0 and x + direction_x <= 7
+            and y - 1 >= 0
+            and self.board[x + (direction_x * 1)][y - 1].piece is None
+        )
+
+        move_right = (
+            destination[0] == self.board[x + (direction_x * 1)][y + 1].x
+            and destination[1] == self.board[x + (direction_x * 1)][y + 1].y
+        )
+
+        move_left = (
+            destination[0] == self.board[x + (direction_x * 1)][y - 1].x
+            and destination[1] == self.board[x + (direction_x * 1)][y - 1].y
+        )
+
+        import pdb
+        pdb.set_trace()
+
+        if possibility_right and move_right:
+            return True
+        if possibility_left and move_left:
+            return True
+        return False

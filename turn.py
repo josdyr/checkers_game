@@ -4,6 +4,8 @@ from player import Player
 
 class Turn(object):
 
+    # TODO(build and validate mandatory list)
+
     def __init__(self, player, board):
         self.current_piece = None
         self.destination_square = None
@@ -23,7 +25,7 @@ class Turn(object):
                     self.current_piece = p
                     break
             if self.current_piece is None:
-                # TODO create a function to print (1,0) as (B1)
+                # TODO(create a function to print (1,0) as (B1))
                 print("No piece belonging to you at location: {}".format(str(source_point)))
 
         # Check if destination_square is a valid Move
@@ -36,5 +38,5 @@ class Turn(object):
                     destination_square, str(self.current_piece.current_square)))
 
     def calculate_move(self):
-        # TODO
+        # TODO()
         pass
