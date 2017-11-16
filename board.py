@@ -72,3 +72,7 @@ class Board(object):
             return True
         else:
             return False
+
+    def set_valid_moves(self, piece):
+        """set all possible moves to piece's valid_moves list"""
+        for moves in piece.valid_moves

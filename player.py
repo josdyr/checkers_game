@@ -36,8 +36,8 @@ class Player(object):
         self.piece_list.append(piece)
 
     class PlayerColor(Enum):
-        WHITE = "W"
-        BLACK = "B"
+        WHITE = "\033[93m" + "O" + "\033[0m"
+        BLACK = "\033[91m" + "O" + "\033[0m"
 
         def __str__(self):
             return str(self.value)

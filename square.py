@@ -19,4 +19,5 @@ class Square(object):
             print("[{}]".format(str(self.piece.player_owner.color)), end='')
 
     def __str__(self):
+        # TODO reverse map to here
         return "{}, {}".format(str(self.x), str(self.y))
