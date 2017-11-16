@@ -19,6 +19,10 @@ class Board(object):
         piece = turn.current_piece
         destination = turn.destination_square
         if abs(piece.current_square.y - destination[1]) == 2:
+            import pdb
+            pdb.set_trace()
+            if piece.mandatory_moves:
+                turn.extra_turn = True
             self.remove_piece_if_jump(piece, destination)
 
         piece.current_square.clear()
@@ -120,9 +124,6 @@ class Board(object):
             and destination[1] == y - 2
         )
 
-        import pdb
-        pdb.set_trace()
-
         if is_mandatory_move_left or is_mandatory_move_right:
             if is_mandatory_move_left and jump_left:
                 return True
@@ -150,9 +151,6 @@ class Board(object):
             destination[0] == self.board[x + (direction_x * 1)][y - 1].x
             and destination[1] == self.board[x + (direction_x * 1)][y - 1].y
         )
-
-        import pdb
-        pdb.set_trace()
 
         if possibility_right and move_right:
             return True

@@ -12,16 +12,13 @@ class Game(object):
         self.player1 = Player(player1_kind, Player.PlayerColor.WHITE)
         self.player2 = Player(player2_kind, Player.PlayerColor.BLACK)
         self.board = Board(self.player1, self.player2)
+        self._active_player = self.player1
 
     def start(self):
-        # Set the initial player's turn
-        self._active_player = self.player1
-        self.board.draw_board()
-
         while self.player1.has_pieces() and self.player2.has_pieces():
-            self.next_turn()
             self.board.draw_board()
-
+            self.next_turn()
+        self.board.draw_board()
         print("Game Over")
 
     def next_turn(self):
@@ -32,10 +29,11 @@ class Game(object):
         self.turn_list.append(current_turn)
 
         # Switch player
-        if self._active_player is self.player1:
-            self._active_player = self.player2
-        else:
-            self._active_player = self.player1
+        if not current_turn.extra_turn:
+            if self._active_player is self.player1:
+                self._active_player = self.player2
+            else:
+                self._active_player = self.player1
         # And increment the turn_count
         self.turn_count += 1
 

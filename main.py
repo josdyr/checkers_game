@@ -1,10 +1,10 @@
 import game as g
 from player import Player
-from point import Point
 
 
 BOARD_SIZE = 8
 NUM_PIECES = 12
+debug = False
 
 
 def map_to_point(arg):
@@ -27,8 +27,11 @@ def map_to_point(arg):
 
 
 def main():
+    debug = input("debug-mode? [y/n]: ")
+
     game = g.Game(Player.PlayerKind.HUMAN, Player.PlayerKind.HUMAN)
-    game.start()
+    if debug != "y":
+        game.start()
 
 
 if __name__ == "__main__":
