@@ -4,11 +4,10 @@ from player import Player
 
 class Turn(object):
 
-    current_piece = None
-    destination_square = None
-
-    def __init__(self, player):
-        # self.player = player
+    def __init__(self, player, board):
+        self.current_piece = None
+        self.destination_square = None
+        self.board = board
 
         if player.kind is Player.PlayerKind.HUMAN:
             self.prompt_move(player)
@@ -22,9 +21,6 @@ class Turn(object):
             for p in player.piece_list:
                 if p.current_square.x == source_point[0] and p.current_square.y == source_point[1]:
                     self.current_piece = p
-                    print("piece: {} belongs to player {}".format(
-                        source_point, str(player.color)))
-                    player.print_pieces()
                     break
             if self.current_piece is None:
                 # TODO create a function to print (1,0) as (B1)
@@ -33,11 +29,12 @@ class Turn(object):
         # Check if destination_square is a valid Move
         while self.destination_square is None:
             destination_square = map_to_point(input("Move to: "))
-            if self.current_piece.is_move_valid(destination_square):
+            if self.board.is_move_valid(self.current_piece, destination_square):
                 self.destination_square = destination_square
             else:
                 print("Move to {} with piece at {} is invalid.".format(
-                    destination_square, self.current_piece.location))
+                    destination_square, str(self.current_piece.current_square)))
 
     def calculate_move(self):
+        # TODO
         pass

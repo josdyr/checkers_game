@@ -1,10 +1,9 @@
 class Square(object):
 
-    piece = None
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.piece = None
 
     def set_piece(self, piece):
         self.piece = piece

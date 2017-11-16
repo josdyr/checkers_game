@@ -27,6 +27,8 @@ def map_to_point(arg):
 
 
 def main():
+    import pdb
+    pdb.set_trace()
     game = g.Game(Player.PlayerKind.HUMAN, Player.PlayerKind.HUMAN)
     game.start()
 

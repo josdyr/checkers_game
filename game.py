@@ -9,8 +9,8 @@ class Game(object):
 
     def __init__(self, player1_kind, player2_kind):
         self.turn_count = 0
-        self.player1 = Player(player1_kind, Player.PlayerColor.WHITE, Player.PLAYER1_POINTS)
-        self.player2 = Player(player2_kind, Player.PlayerColor.BLACK, Player.PLAYER2_POINTS)
+        self.player1 = Player(player1_kind, Player.PlayerColor.WHITE)
+        self.player2 = Player(player2_kind, Player.PlayerColor.BLACK)
         self.board = Board(self.player1, self.player2)
 
     def start(self):
@@ -26,7 +26,7 @@ class Game(object):
 
     def next_turn(self):
         print("Turn: {}. Active Player: {}".format(self.turn_count, str(self._active_player.color)))
-        current_turn = Turn(self._active_player)
+        current_turn = Turn(self._active_player, self.board)
         # DOMOVE:
         self.board.move_piece(current_turn)
         self.turn_list.append(current_turn)

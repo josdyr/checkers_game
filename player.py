@@ -3,9 +3,6 @@ from enum import Enum
 
 class Player(object):
 
-    color = None
-    piece_list = []
-
     PLAYER1_POINTS = [
         [0, 0], [2, 0], [1, 1], [0, 2], [2, 2], [1, 3],
         [0, 4], [2, 4], [1, 5], [0, 6], [2, 6], [1, 7]
@@ -16,10 +13,14 @@ class Player(object):
         [6, 4], [5, 5], [7, 5], [6, 6], [5, 7], [7, 7]
     ]
 
-    def __init__(self, kind, color, initial_points):
+    def __init__(self, kind, color):
         self.kind = kind
         self.color = color
-        self.initial_points = initial_points
+        self.piece_list = []
+        if color == self.PlayerColor.WHITE:
+            self.initial_points = self.PLAYER1_POINTS
+        else:
+            self.initial_points = self.PLAYER2_POINTS
 
     def print_pieces(self):
         for p1 in self.piece_list:
